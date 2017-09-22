@@ -1,0 +1,26 @@
+- name: change shell
+  user:
+    name: "{{ user_name }}"
+    shell: /bin/zsh
+  become: yes
+
+- name: install oh-my-zsh
+  git:
+    repo: 'git://github.com/robbyrussell/oh-my-zsh.git'
+    dest: "/home/{{ user_name }}/.oh-my-zsh"
+
+- name: initialize zshrc
+  copy:
+    src: zshrc
+    dest: ~/.zshrc
+    mode: 0644
+
+- name: install pyenv
+  git:
+    repo: 'https://github.com/pyenv/pyenv.git'
+    dest: "/home/{{ user_name }}/.pyenv"
+
+- name: install pyenv
+  git:
+    repo: 'https://github.com/pyenv/pyenv-virtualenv.git'
+    dest: "/home/{{ user_name }}/.pyenv/plugins/pyenv-virtualenv"

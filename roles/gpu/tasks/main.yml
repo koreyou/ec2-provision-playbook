@@ -1,0 +1,60 @@
+
+- name: Download CUDA
+  get_url:
+    url: "{{ cuda_url }}"
+    dest: "/tmp/cuda.deb"
+
+- name: Install CUDA deb
+  apt:
+    deb: /tmp/cuda.deb
+
+- name: install CUDA
+  apt:
+    pkg: cuda
+    state: present
+    update_cache: yes
+
+- name: Send cuDNN debs
+  copy:
+    src: "{{ item  }}"
+    dest: /tmp
+    mode: 0644
+  with_items:
+    - "{{ cudnn_deb }}"
+    - "{{ cudnn_dev_deb }}"
+
+- name: install cuDNN
+  apt:
+    deb: "/tmp/{{ item }}"
+  with_items:
+    - "{{ cudnn_deb }}"
+    - "{{ cudnn_dev_deb }}"
+
+- name: Clean CUDA deb file
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/tmp/cuda.deb"
+    - "/tmp/{{ cudnn_deb }}"
+    - "/tmp/{{ cudnn_dev_deb }}"
+
+- name: Download CUDA
+  get_url:
+    url: "{{ nvidia_docker_url }}"
+    dest: "/tmp/nvidia_docker.deb"
+
+- name: install nvidia-docker
+  apt:
+    deb: /tmp/nvidia_docker.deb
+
+- name: Clean nvidia-docker
+  file:
+    path: /tmp/nvidia_docker.deb
+    state: absent
+
+- name: Add cuda environment 
+  copy:
+    src: cuda.sh
+    dest: /etc/profile.d/
+    mode: 0644

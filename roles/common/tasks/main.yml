@@ -1,0 +1,78 @@
+- name: check 
+  shell:  lsb_release -cs
+  changed_when: False
+  register: release
+
+- name: Add main repository
+  apt_repository:
+    repo: "deb http://archive.ubuntu.com/ubuntu {{ release.stdout }} main universe"
+    state: present
+
+- name: install aptitude (needed for ansible apt module)
+  apt: pkg=aptitude state=present update_cache=yes
+
+#- name: Upgrade all packages to the latest version
+#  apt:
+#    name: "*"
+#    state: latest
+
+- name: install base packages
+  apt: pkg="{{item}}" state=present update_cache=yes cache_valid_time=604800
+  with_items:
+    - build-essential
+    - git
+    - readline-common
+    - bzip2
+    - libssl-dev
+    - zlib1g-dev
+    - libbz2-dev
+    - libreadline-dev
+    - libsqlite3-dev
+    - wget
+    - curl
+    - llvm
+    - libncurses5-dev
+    - libncursesw5-dev
+    - xz-utils
+    - python-gpgme
+    - cmake
+    - python-dev
+    - emacs
+    - zsh
+
+- name: install docker dependency
+  apt: pkg="{{item}}" state=present update_cache=yes cache_valid_time=604800
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+
+# There seems to be a bug related to apt_key module
+#- name: Add docker repository gpg
+#  apt_key:
+#    id: 473041FA
+#    url: https://download.docker.com/linux/ubuntu/gpg
+#    state: present
+
+- name: Add docker repository gpg
+  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+- name: Add docker repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ release.stdout }} stable"
+    state: present
+
+- name: install docker
+  apt: pkg="{{item}}" state=present update_cache=yes cache_valid_time=604800
+  with_items:
+    - docker-ce
+
+- name: Create docker group
+  group:
+    name: docker
+    state: present
+
+- name: Enable docker service
+  systemd: state=started name=docker enabled=yes
+

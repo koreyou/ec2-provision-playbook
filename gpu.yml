@@ -1,0 +1,14 @@
+- hosts: gpu
+  vars_files:
+      - defaults/main.yml
+  become: yes
+  roles:
+    - common
+    - gpu
+
+- hosts: gpu
+  vars_files:
+      - defaults/main.yml
+  become: no
+  roles:
+    - home
