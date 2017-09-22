@@ -1,0 +1,11 @@
+###### Editor debris ########
+
+*.org
+*~
+\#*
+.python-version
+
+###### Playbook debris #####
+
+*.retry
+roles/gpu/files/*.deb
